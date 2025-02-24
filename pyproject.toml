@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "acdh-django-zotero"
+version = "0.1.7"
+dependencies = [
+	"django>=5.1",
+	"pytz >= 25.1",
+	"django-autocomplete-light"
+]
+description = "A thin tool for implementing bibliographic entities from Zotero"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+	{ name = "Matthias Richter", email = "matthias.richter@slub-dresden.de" }
+]
+license = {file = "LICENSE"}
+classifiers = [
+	"Development Status :: 3 - Alpha",
+	"Framework :: Django",
+	"Programming Language :: Python :: 3",
+	"Operating System :: OS Independent",
+	"Environment :: Web Environment",
+]

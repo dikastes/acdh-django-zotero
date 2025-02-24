@@ -85,10 +85,7 @@ class ZotItem(models.Model):
         ordering = ['-zot_version']
 
     def __str__(self):
-        if self.zot_bibtex:
-            return "{}".format(self.zot_bibtex)
-        else:
-            return "{}: {}; {}".format(self.zot_creator, self.zot_title, self.zot_pub_title)
+        return f"{self.author}: {self.zot_title}; {self.zot_pub_title}"
 
     def save(self, get_bibtex=False, *args, **kwargs):
         if get_bibtex:
@@ -104,16 +101,29 @@ class ZotItem(models.Model):
 
     @property
     def author(self):
-        authors = []
-        author_list = ast.literal_eval(self.zot_creator)
-        for x in author_list:
-            try:
-                author = f"{x['firstName']} {x['lastName']}"
-            except KeyError:
-                author = f"{x.get('name', '')}"
-            authors.append(author.strip())
-        author_name = " / ".join(authors)
-        if author_name:
-            return author_name
-        else:
-            return NN
+        return self.get_creators('author')
+
+    @property
+    def editor(self):
+        return self.get_creators('editor')
+
+    @property
+    def translator(self):
+        return self.get_creators('translator')
+
+    def get_creators(self, type):
+        zot_creator = ast.literal_eval(self.zot_creator)
+        if zot_creator:
+            return ', '.join(
+                    ZotItem.get_name(creator)
+                    for creator
+                    in zot_creator
+                    if creator['creatorType'] == type
+                )
+        return NN
+
+    def get_name(creator):
+        try:
+            return f"{creator['firstName']} {creator['lastName']}"
+        except KeyError:
+            return f"{creator.get('name', '')}"

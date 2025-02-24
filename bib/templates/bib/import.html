@@ -1,0 +1,44 @@
+{% extends 'bib/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1> Datenimport </h1>
+
+<p> Bitte diese Seite nicht schließen. </p>
+{% comment %}
+<span class="countdown font-mono text-6xl">
+  <span style="--value:${{ count }};"></span>
+</span>
+Einträge werden importiert. </p>
+{% endcomment %}
+
+{% comment %}
+<div class="grid grid-cols-12 gap-4">
+  {% for bulk in bulks %}
+  <div class="card shadow mt-5 bulk">
+    <span class="loading loading-ring loading-lg"></span>
+    <a href="{% url 'bib:import_bulk' bulk %}" class="bulk-url"></a>
+  </div>
+  {% endfor %}
+</div>
+{% endcomment %}
+
+{% comment %}
+<div
+  class="radial-progress"
+  style="--value:0; --size:12rem; --thickness: 2rem;"
+  role="progressbar">
+  0%
+</div>
+{% endcomment %}
+
+<progress class="progress w-56" value="0" max="100"></progress>
+
+<script>
+  const bulks = {{ bulks | safe }};
+  const count = {{ count }};
+  const dashboardUrl = "{% url 'bib:dashboard' %}";
+</script>
+<script src="{% static 'bib/import.js' %}"></script>
+{% endblock %}

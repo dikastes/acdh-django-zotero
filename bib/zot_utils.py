@@ -3,7 +3,7 @@ from django.conf import settings
 from bib.models import ZotItem
 
 
-def items_to_dict(library_id, library_type, api_key, limit=15, since_version=None):
+def items_to_dict(library_id, library_type, api_key, limit=15, start=0, since_version=None):
 
     """
     returns a dict with keys 'error' containing possible error-msgs,
@@ -14,36 +14,36 @@ def items_to_dict(library_id, library_type, api_key, limit=15, since_version=Non
     zot = zotero.Zotero(library_id, library_type, api_key)
     result = {}
     error = None
-    itmes = None
+    items = None
     bibs = []
     if since_version:
         try:
             items = zot.everything(zot.top(since=since_version))
-            bibtexs = zot.everything(zot.top(format='bibtex', since=since_version))
+            #bibtexs = zot.everything(zot.top(format='bibtex', since=since_version))
         except Exception as e:
             error = "{}".format(e)
             items = None
-            bibtexs = None
+            #bibtexs = None
     elif limit:
         try:
-            items = zot.top(limit=limit)
-            bibtexs = zot.everything(zot.top(format='bibtex', limit=limit))
+            items = zot.top(limit=limit, start=start)
+            #bibtexs = zot.everything(zot.top(format='bibtex', limit=limit, start=start))
         except Exception as e:
             error = "{}".format(e)
             items = None
-            bibtexs = None
+            #bibtexs = None
     else:
         try:
             items = zot.everything(zot.top())
-            bibtexs = zot.everything(zot.top(format='bibtex'))
+            #bibtexs = zot.everything(zot.top(format='bibtex'))
         except Exception as e:
             error = "{}".format(e)
             items = None
-            bibtexs = None
+            #bibtexs = None
 
     result['items'] = items
     result['error'] = error
-    result['bibtexs'] = bibtexs
+    #result['bibtexs'] = bibtexs
 
     if items:
         bibs = []
@@ -62,13 +62,13 @@ def items_to_dict(library_id, library_type, api_key, limit=15, since_version=Non
             bib['version'] = "{}".format(x['data'].get('version'))
             bib['zot_html_link'] = "{}".format(x['links']['alternate']['href'])
             bib['zot_api_link'] = "{}".format(x['links']['self']['href'])
-            if len(bibtexs.entries) == len(items):
-                try:
-                    bib['zot_bibtex'] = "{}".format(bibtexs.entries[c])
-                except IndexError:
-                    bib['zot_bibtex'] = ""
-            else:
-                bib['zot_bibtex'] = ""
+            #if len(bibtexs.entries) == len(items):
+                #try:
+                    #bib['zot_bibtex'] = "{}".format(bibtexs.entries[c])
+                #except IndexError:
+                    #bib['zot_bibtex'] = ""
+            #else:
+                #bib['zot_bibtex'] = ""
             bibs.append(bib)
             c += 1
 
@@ -104,3 +104,7 @@ def create_zotitem(bib_item, get_bibtex=False):
     else:
         temp_item.save()
     return temp_item
+
+def count_zotitems(library_id, library_type, api_key):
+    zot = zotero.Zotero(library_id, library_type, api_key)
+    return zot.count_items()
