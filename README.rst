@@ -20,12 +20,13 @@ Install acdh-django-zotero::
 
     pip install acdh-django-zotero
 
-Add it to your `INSTALLED_APPS`:
+Add it to your `INSTALLED_APPS` together with dal_select2:
 
 .. code-block:: python
 
     INSTALLED_APPS = (
         ...
+        'dal_select2',
         'bib',
         ...
     )
