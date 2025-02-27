@@ -107,4 +107,8 @@ def create_zotitem(bib_item, get_bibtex=False):
 
 def count_zotitems(library_id, library_type, api_key):
     zot = zotero.Zotero(library_id, library_type, api_key)
-    return zot.count_items()
+    return zot.num_items()
+
+def get_last_version(library_id, library_type, api_key):
+    zot = zotero.Zotero(library_id, library_type, api_key)
+    return zot.last_modified_version()
