@@ -9,12 +9,12 @@ from django.views.generic.list import ListView
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from json import dumps
 
 
 from . models import ZotItem
-from . zot_utils import items_to_dict, create_zotitem, count_zotitems
+from . zot_utils import items_to_dict, create_zotitem, count_zotitems, get_last_version
 
 
 library_id = settings.Z_ID
@@ -33,6 +33,17 @@ class Dashboard(ListView):
         context['count'] = ZotItem.objects.all().count()
         return context
 
+def dashboard_info(request):
+    context = {}
+    count = ZotItem.objects.all().count()
+    first_object = ZotItem.objects.all()[:1].get()
+    since = first_object.zot_version
+    version = get_last_version(library_id, library_type, api_key)
+    context['new_items'] = count_zotitems(library_id, library_type, api_key) - count
+    context['updates'] = version - since
+
+    return JsonResponse(context)
+
 def sync_zotero(request):
     """ renders a simple template with a button to trigger sync_zotero_action function """
     context = {}
@@ -46,7 +57,7 @@ def delete(request):
 
 def import_complete(request):
     count = count_zotitems(library_id, library_type, api_key)
-    bulks = [ reverse('bib:import_bulk', kwargs={'bulk': bulk}) for bulk in range(count // bulk_size) ]
+    bulks = [ reverse('bib:import_bulk', kwargs={'bulk': bulk}) for bulk in range((count // bulk_size) + 1) ]
     context = {
             'count': count,
             'bulks': dumps(bulks)
